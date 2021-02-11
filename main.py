@@ -3,22 +3,21 @@ from datetime import datetime
 from pytz import timezone
 
 class ApacheLog:
-	
-	def __init__(self, export: str=None):
+	def __init__(self, timeZone: str, export: str=None):
+		self.timeZone = timeZone
 		self.export = export
 
-	def log(self, timeZone: str, logLevel: str or int, message: str, export: str=None) -> None:
+	def log(self, logLevel: str or int, message: str) -> None:
 		'''
 		Print or saves apache-formed log
 
 		- logLevel: debug=0 | info=1 | notice=2 | warn=3 | alert=4 | error=5 | crit=6 | emerg=7
-		- export: _PathLike
 		'''
 
 		errorMessage = '"{}" is unsupported {} for "{}"'
 
-		if(str(type(timeZone)) != '<class \'str\'>'):
-			raise TypeError(errorMessage.format(str(type(timeZone)).replace('<class \'', '').replace('\'>', '')), 'type', 'timeZone')
+		if(str(type(self.timeZone)) != '<class \'str\'>'):
+			raise TypeError(errorMessage.format(str(type(self.timeZone)).replace('<class \'', '').replace('\'>', '')), 'type', 'timeZone')
 
 		elif(str(type(logLevel)) != '<class \'str\'>' and str(type(logLevel)) != '<class \'int\'>'):
 			raise TypeError(errorMessage.format(str(type(logLevel)).replace('<class \'', '').replace('\'>', '')), 'type', 'logLevel')
@@ -26,20 +25,17 @@ class ApacheLog:
 		elif(str(type(message)) != '<class \'str\'>'):
 			raise TypeError(errorMessage.format(str(type(message)).replace('<class \'', '').replace('\'>', '')), 'type', 'message')
 
-		elif(str(type(export)) != '<class \'str\'>' and str(type(export)) != '<class \'NoneType\'>'):
-			raise TypeError(errorMessage.format(str(type(export)).replace('<class \'', '').replace('\'>', '')), 'type', 'export')
+		elif(str(type(self.export)) != '<class \'str\'>' and str(type(self.export)) != '<class \'NoneType\'>'):
+			raise TypeError(errorMessage.format(str(type(self.export)).replace('<class \'', '').replace('\'>', '')), 'type', 'export')
 
 		# debug: 0, info: 1, notice: 2, warn: 3, alert: 4, error: 5, crit: 6, emerg: 7
 		logLevelNameList = ['debug', 'info', 'notice', 'warn', 'alert', 'error', 'crit', 'emerg']
 
-		if(export == None):
-			export = self.export
+		if(self.export == '<class \'str\'>'):
+			self.export = self.export.replace('\\', '/')
 
-		else:
-			export = export.replace('\\', '/')
-
-		if(re.match(re.compile('^[+-](?:2[0-3]|[01][0-9]):[0-5][0-9]$'), timeZone) == None):
-			raise ValueError(errorMessage.format(timeZone, 'string', 'timeZone'))
+		if(re.match(re.compile('^[+-](?:2[0-3]|[01][0-9]):[0-5][0-9]$'), self.timeZone) == None):
+			raise ValueError(errorMessage.format(self.timeZone, 'string', 'timeZone'))
 
 		if(str(type(logLevel)) == '<class \'str\'>'):
 			if(not logLevel in logLevelNameList):
@@ -52,27 +48,27 @@ class ApacheLog:
 			else:
 				raise ValueError(errorMessage.format(logLevel, 'integer', 'logLevel'))
 
-		if(export != None):
-			if(len(export.split('/')[:-1]) != 0 and not os.path.exists('/'.join(export.split('/')[:-1]))):
-				os.mkdir('/'.join(export.split('/')[:-1]))
+		if(self.export != None):
+			if(len(self.export.split('/')[:-1]) != 0 and not os.path.exists('/'.join(self.export.split('/')[:-1]))):
+				os.mkdir('/'.join(self.export.split('/')[:-1]))
 
 			try:
-				logFile = open(export, 'a', encoding='utf8')
+				logFile = open(self.export, 'a', encoding='utf8')
 
 			except PermissionError:
-				raise PermissionError(f'Wrong or have no permission for the file "{export}"')
+				raise PermissionError(f'Wrong or have no permission for the file "{self.export}"')
 
 			currentTime = datetime.now(timezone("UTC")).strftime('%d/%b/%Y:%H:%M:%S')
 
-			print(f'[{currentTime} {timeZone}][{logLevel}] {message}')
+			print(f'[{currentTime} {self.timeZone}][{logLevel}] {message}')
 
-			logFile.write(f'[{currentTime} {timeZone}][{logLevel}] {message}\n')
+			logFile.write(f'[{currentTime} {self.timeZone}][{logLevel}] {message}\n')
 			logFile.close()
 
 		else:
 			currentTime = datetime.now(timezone("UTC")).strftime('%d/%b/%Y:%H:%M:%S')
 
-			print(f'[{currentTime} {timeZone}][{logLevel}] {message}')
+			print(f'[{currentTime} {self.timeZone}][{logLevel}] {message}')
 
 		return None
 
@@ -83,7 +79,7 @@ def log(timeZone: str, logLevel: str or int, message: str, export: str=None) -> 
 	- logLevel: debug=0 | info=1 | notice=2 | warn=3 | alert=4 | error=5 | crit=6 | emerg=7
 	- export: _PathLike
 	'''
-	
-	log = ApacheLog().log
 
-	log(timeZone, logLevel, message, export)
+	log = ApacheLog(timeZone, export).log
+
+	log(logLevel, message)
