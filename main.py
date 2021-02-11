@@ -16,16 +16,16 @@ class ApacheLog:
 		'''
 
 		if(str(type(timeZone)) != '<class \'str\'>'):
-			raise TypeError('unsupported type for timeZone('+str(type(logLevel)).replace('<class \'', '').replace('\'>', '')+')')
+			raise TypeError('unsupported type for timeZone('+str(type(timeZone)).replace('<class \'', '').replace('\'>', '')+')')
 
 		elif(str(type(logLevel)) != '<class \'str\'>' and str(type(logLevel)) != '<class \'int\'>'):
 			raise TypeError('unsupported type for logLevel('+str(type(logLevel)).replace('<class \'', '').replace('\'>', '')+')')
 
 		elif(str(type(message)) != '<class \'str\'>'):
-			raise TypeError('unsupported type for message('+str(type(logLevel)).replace('<class \'', '').replace('\'>', '')+')')
+			raise TypeError('unsupported type for message('+str(type(message)).replace('<class \'', '').replace('\'>', '')+')')
 
 		elif(str(type(export)) != '<class \'str\'>' and str(type(export)) != '<class \'NoneType\'>'):
-			raise TypeError('unsupported type for export('+str(type(logLevel)).replace('<class \'', '').replace('\'>', '')+')')
+			raise TypeError('unsupported type for export('+str(type(export)).replace('<class \'', '').replace('\'>', '')+')')
 
 		# debug: 0, info: 1, notice: 2, warn: 3, alert: 4, error: 5, crit: 6, emerg: 7
 		logLevelNameList = ['debug', 'info', 'notice', 'warn', 'alert', 'error', 'crit', 'emerg']
